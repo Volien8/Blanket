@@ -1,4 +1,43 @@
+from pathlib import Path
+
 import pygame
+
+
+PORTRAIT_DIR = Path(__file__).resolve().parents[1] / "assets" / "portraits"
+_PORTRAIT_CACHE = {}
+
+
+def _load_portrait(role):
+    role = {"customer": "customers"}.get(role, role)
+    if role not in _PORTRAIT_CACHE:
+        path = PORTRAIT_DIR / f"{role}.png"
+        if path.exists():
+            _PORTRAIT_CACHE[role] = pygame.image.load(str(path)).convert()
+        else:
+            _PORTRAIT_CACHE[role] = None
+    return _PORTRAIT_CACHE[role]
+
+
+def draw_avatar(surface, rect, role, colors, selected=False):
+    """Рисует переданный портрет с аккуратным кадрированием."""
+    rect = pygame.Rect(rect)
+    image = _load_portrait(role)
+    if image is None:
+        return False
+    source_ratio = image.get_width() / image.get_height()
+    target_ratio = rect.width / rect.height
+    if source_ratio > target_ratio:
+        height = image.get_height()
+        width = int(height * target_ratio)
+        crop = image.subsurface(((image.get_width() - width) // 2, 0, width, height))
+    else:
+        width = image.get_width()
+        height = int(width / target_ratio)
+        crop = image.subsurface((0, (image.get_height() - height) // 2, width, height))
+    scaled = pygame.transform.smoothscale(crop, rect.size)
+    surface.blit(scaled, rect)
+    pygame.draw.rect(surface, colors["yellow"] if selected else colors["border"], rect, 3, border_radius=8)
+    return True
 
 
 PALETTE = {
@@ -66,6 +105,9 @@ def draw_person(surface, center, scale, role, colors, selected=False):
 def draw_portrait(surface, center, scale, role, colors, expression="neutral"):
     """Крупный портрет лица для диалогового экрана."""
     x, y = center
+    avatar_rect = pygame.Rect(int(x - 105 * scale), int(y - 135 * scale), int(210 * scale), int(265 * scale))
+    if draw_avatar(surface, avatar_rect, role, colors, True):
+        return
     shirt = _face(surface, (x, y - int(10 * scale)), scale, role, colors, expression)
     pygame.draw.ellipse(surface, (22, 26, 34), (x - int(78 * scale), y + int(55 * scale), int(156 * scale), int(110 * scale)))
     pygame.draw.ellipse(surface, shirt, (x - int(70 * scale), y + int(58 * scale), int(140 * scale), int(100 * scale)))

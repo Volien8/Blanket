@@ -18,22 +18,26 @@ def wrap_text(value, font, max_width):
 
 
 class Button:
-    def __init__(self, rect, text, callback, accent=(64, 132, 190), tooltip=None):
+    def __init__(self, rect, text, callback, accent=(64, 132, 190), tooltip=None, enabled=True):
         self.rect = pygame.Rect(rect)
         self.text = text
         self.callback = callback
         self.accent = accent
         self.tooltip = tooltip
+        self.enabled = enabled
         self.hover = False
 
     def handle(self, event):
         if event.type == pygame.MOUSEMOTION:
             self.hover = self.rect.collidepoint(event.pos)
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.rect.collidepoint(event.pos):
+        elif self.enabled and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.rect.collidepoint(event.pos):
             self.callback()
 
     def draw(self, surface, font, colors):
-        fill = colors["accent"] if self.hover else self.accent
+        if not self.enabled:
+            fill = (62, 69, 88)
+        else:
+            fill = colors["accent"] if self.hover else self.accent
         pygame.draw.rect(surface, fill, self.rect, border_radius=8)
         pygame.draw.rect(surface, colors["border"], self.rect, 2, border_radius=8)
         lines = wrap_text(self.text, font, self.rect.width - 18)
@@ -41,6 +45,8 @@ class Button:
         start_y = self.rect.centery - (len(lines) - 1) * line_height // 2
         for index, line in enumerate(lines):
             rendered = font.render(line, True, colors["text"])
+            color = colors["muted"] if not self.enabled else colors["text"]
+            rendered = font.render(line, True, color)
             surface.blit(rendered, rendered.get_rect(center=(self.rect.centerx, start_y + index * line_height)))
 
 

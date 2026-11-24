@@ -6,6 +6,7 @@ import pygame
 from .entities import GameState
 from .branding import AUTHOR_NAME, GAME_TITLE
 from .scenes.menu import MenuScene
+from .ui import Button
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -36,6 +37,7 @@ class Game:
         }
         self.state = GameState.new(self.config["game"])
         self.scene = MenuScene(self)
+        self.back_button = Button((18, 18, 138, 40), "← Назад", self.back_to_previous, accent=(47, 82, 130), tooltip="Вернуться на предыдущий экран.")
         self.running = True
 
     def change_scene(self, scene):
@@ -43,6 +45,12 @@ class Game:
 
     def new_state(self):
         self.state = GameState.new(self.config["game"])
+
+    def back_to_previous(self):
+        if hasattr(self.scene, "back"):
+            self.scene.back()
+        else:
+            self.change_scene(MenuScene(self))
 
     def save(self):
         path = ROOT / "save" / "slot1.json"
@@ -95,13 +103,20 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
                 else:
+                    consumed = False
+                    if not isinstance(self.scene, MenuScene):
+                        self.back_button.handle(event)
+                        consumed = event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.back_button.rect.collidepoint(event.pos)
                     if hasattr(event, "pos") and event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
                         scale_x = self.canvas.get_width() / self.screen.get_width()
                         scale_y = self.canvas.get_height() / self.screen.get_height()
                         event = pygame.event.Event(event.type, {**event.dict, "pos": (int(event.pos[0] * scale_x), int(event.pos[1] * scale_y))})
-                    self.scene.handle_event(event)
+                    if not consumed:
+                        self.scene.handle_event(event)
             self.scene.update()
             self.scene.draw(self.canvas)
+            if not isinstance(self.scene, MenuScene):
+                self.back_button.draw(self.canvas, self.fonts["small"], self.colors)
             pygame.transform.smoothscale(self.canvas, self.screen.get_size(), self.screen)
             pygame.display.flip()
             self.clock.tick(self.config["window"]["fps"])

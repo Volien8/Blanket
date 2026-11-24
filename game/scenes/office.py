@@ -1,6 +1,6 @@
 import pygame
 
-from ..people import draw_person
+from ..people import draw_avatar, draw_person
 from ..scene import Scene
 from ..ui import Button, bar, panel, text, tooltip
 
@@ -8,9 +8,9 @@ from ..ui import Button, bar, panel, text, tooltip
 class OfficeScene(Scene):
     ZONES = [
         ("BE", (35, 125, 210, 140), "teamlead_be", "be", "Бэкенд: поговорить с тимлидом и перераспределить ресурс."),
-        ("FE-1 / FE-2", (260, 125, 250, 140), "teamlead_be", "fe", "Фронтенд: проверить готовность двух команд."),
+        ("FE-1 / FE-2", (260, 125, 250, 140), "teamlead_fe", "fe", "Фронтенд: проверить готовность двух команд."),
         ("QA", (540, 125, 210, 140), "teamlead_qa", "qa", "QA: ручные проверки, автотесты и риск релиза."),
-        ("Документация", (780, 125, 210, 140), "teamlead_qa", "docs", "Документация: готовность инструкций для заказчиков."),
+        ("Документация", (780, 125, 210, 140), "docs", "docs", "Документация: готовность инструкций для заказчиков."),
         ("Внедрение", (1020, 125, 225, 140), "customer", "customer", "Четыре заказчика: понимание, юридическое давление и терпение."),
         ("Поддержка", (35, 305, 210, 140), "support", "support", "Техподдержка: бумажки, эскалации и звёздный сотрудник."),
         ("Продажи", (260, 305, 210, 140), "sales", "sales", "Продажи: обещания клиентам и неожиданные сюрпризы."),
@@ -67,13 +67,8 @@ class OfficeScene(Scene):
         _, _, key, _, _ = self.ZONES[self.selected_index]
         if key == "legacy":
             self.open_legacy()
-        elif key in {"teamlead_be", "teamlead_qa", "ceo"}:
+        elif key in {"teamlead_be", "teamlead_fe", "teamlead_qa", "docs", "customer", "support", "sales", "ceo", "accounting"}:
             self.open_dialog(key)
-        elif key == "customer":
-            self.game.state.customers[1].satisfaction = max(0, self.game.state.customers[1].satisfaction - 2)
-            self.game.state.add_log("Заказчик Legal напомнил про договор и юриста.")
-        else:
-            self.game.state.add_log(f"Вы осмотрели зону «{self.ZONES[self.selected_index][0]}».")
 
     def next_day(self):
         from .end import EndScene
@@ -124,7 +119,9 @@ class OfficeScene(Scene):
             selected = index == self.selected_index
             fill = colors["panel_light"] if selected else colors["panel"]
             panel(surface, box, colors, fill)
-            draw_person(surface, (box.centerx, box.centery + 8), 0.8, role, colors, selected)
+            avatar_rect = pygame.Rect(box.centerx - 42, box.centery - 2, 84, 76)
+            if not draw_avatar(surface, avatar_rect, role, colors, selected):
+                draw_person(surface, (box.centerx, box.centery + 8), 0.8, role, colors, selected)
             text(surface, name, (box.centerx, box.top + 20), fonts["small"], colors["text"], True, max_width=box.width - 20)
             if key == "legacy":
                 legacy = state.legacy

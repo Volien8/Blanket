@@ -1,4 +1,5 @@
 import pygame
+from pathlib import Path
 
 from ..branding import AUTHOR_NAME, AUTHOR_SIGNATURE, GAME_TITLE
 from ..scene import Scene
@@ -9,9 +10,10 @@ class MenuScene(Scene):
     def __init__(self, game):
         super().__init__(game)
         self.about = False
+        self.has_save = (Path(__file__).resolve().parents[2] / "save" / "slot1.json").exists()
         self.buttons = [
             Button((470, 285, 340, 52), "Новая игра", self.new_game, tooltip="Начать новую историю руководителя проекта."),
-            Button((470, 350, 340, 52), "Продолжить", self.continue_game, tooltip="Загрузить последнее сохранение."),
+            Button((470, 350, 340, 52), "Продолжить", self.continue_game, tooltip="Загрузить последнее сохранение." if self.has_save else "Сохранений пока нет.", enabled=self.has_save),
             Button((470, 415, 340, 52), "Об игре", self.toggle_about, tooltip="Посмотреть цель и правила игры."),
             Button((470, 480, 340, 52), "Выход", self.quit, tooltip="Закрыть игру."),
         ]
@@ -22,7 +24,7 @@ class MenuScene(Scene):
         self.game.change_scene(IntroScene(self.game))
 
     def continue_game(self):
-        if self.game.load():
+        if self.has_save and self.game.load():
             from .office import OfficeScene
             self.game.change_scene(OfficeScene(self.game))
         else:

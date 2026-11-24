@@ -1,7 +1,7 @@
 {
   "teamlead_be": {
     "speaker": "Тимлид BE",
-    "portrait": "BE",
+    "portrait": "be",
     "text": "Нам нужно больше ресурсов, иначе новые фичи не сделать.",
     "options": [
       {"text": "Дам ресурс", "action": "give_resource"},
@@ -9,9 +9,19 @@
       {"text": "Сам разберусь", "action": "intervene"}
     ]
   },
+  "teamlead_fe": {
+    "speaker": "Тимлид FE",
+    "portrait": "fe",
+    "text": "Фронтенд готов. Ну, почти готов. Но это мелочи.",
+    "options": [
+      {"text": "Дать время", "action": "give_fe_time"},
+      {"text": "Проверить API", "action": "check_fe_api"},
+      {"text": "Поверить отчёту", "action": "trust_fe"}
+    ]
+  },
   "teamlead_qa": {
     "speaker": "Тимлид QA",
-    "portrait": "QA",
+    "portrait": "qa",
     "text": "Автотесты зелёные. Ручные не успели. Но автотесты же зелёные, правда?",
     "options": [
       {"text": "Проверить вручную", "action": "manual_qa"},
@@ -19,14 +29,64 @@
       {"text": "Поверю отчёту", "action": "trust_qa"}
     ]
   },
+  "docs": {
+    "speaker": "Документация",
+    "portrait": "docs",
+    "text": "Мы хорошо говорим. Правда, не всегда понимаем, о чём именно.",
+    "options": [
+      {"text": "Дать ещё день", "action": "give_docs_time"},
+      {"text": "Попросить черновик", "action": "ask_docs_draft"},
+      {"text": "Отправить как есть", "action": "trust_docs"}
+    ]
+  },
+  "customer": {
+    "speaker": "Заказчик Legal",
+    "portrait": "customer",
+    "text": "По договору вы нам всё должны. Бесплатно. И мгновенно.",
+    "options": [
+      {"text": "Эскалировать к CEO", "action": "customer_escalate"},
+      {"text": "Предложить костыль", "action": "customer_crutch"},
+      {"text": "Объяснить порядок", "action": "customer_explain"}
+    ]
+  },
+  "support": {
+    "speaker": "Техподдержка",
+    "portrait": "support",
+    "text": "Без бумажки не шевелимся. Даже если сервер горит.",
+    "options": [
+      {"text": "Выдать бумажку", "action": "support_paper"},
+      {"text": "Позвать звёздного", "action": "support_star"},
+      {"text": "Эскалировать", "action": "support_escalate"}
+    ]
+  },
+  "sales": {
+    "speaker": "Продажи",
+    "portrait": "sales",
+    "text": "Ой, мы забыли сказать: клиент хочет ещё и мобильное приложение.",
+    "options": [
+      {"text": "Записать задачу", "action": "sales_task"},
+      {"text": "Отменить обещание", "action": "sales_cancel"},
+      {"text": "Сделать вид, что так и было", "action": "sales_bluff"}
+    ]
+  },
   "ceo": {
     "speaker": "Гендиректор",
-    "portrait": "CEO",
+    "portrait": "ceo",
     "text": "Закупка? Обоснуйте бумажками. И не говорите «нужно, и всё».",
     "options": [
       {"text": "Показать расчёт", "action": "ceo_buy"},
       {"text": "Попросить ещё время", "action": "ceo_wait"},
       {"text": "Эскалировать заказчика", "action": "ceo_escalate"}
+    ]
+  },
+  "accounting": {
+    "speaker": "Бухгалтерия",
+    "portrait": "accounting",
+    "text": "Акт сверки не подписан. Штраф. Не спорьте.",
+    "options": [
+      {"text": "Подписать акт", "action": "accounting_sign"},
+      {"text": "Заплатить сразу", "action": "accounting_pay"},
+      {"text": "Попросить отсрочку", "action": "accounting_wait"}
     ]
   }
 }

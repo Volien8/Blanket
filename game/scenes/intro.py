@@ -33,7 +33,7 @@ class IntroScene(Scene):
         text(surface, "ПРЕАМБУЛА", (640, 115), fonts["heading"], colors["pink"], True)
         panel(surface, pygame.Rect(80, 155, 1120, 380), colors, (29, 38, 65))
         draw_portrait(surface, (210, 330), 1.45, "ceo", colors, "stern")
-        text(surface, "Вы — руководитель проекта, бывший бэкендер.", (390, 205), fonts["heading"], colors["text"], max_width=730)
+        text(surface, "Вы — руководитель проекта.", (390, 205), fonts["heading"], colors["text"], max_width=730)
         text(surface, "Ваша задача — провести флагманский релиз через 15 рабочих дней.",
              (390, 270), fonts["body"], colors["muted"], max_width=720)
         text(surface, "Пять команд делят один ресурс, QA требует время, заказчики требуют всё сразу, а бухгалтерия уже приготовила печать.",
