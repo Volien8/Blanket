@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import random
 
 
 @dataclass
@@ -39,6 +40,7 @@ class GameState:
     release_sent: bool = False
     release_mode: str | None = None
     talked_to_today: list[str] = field(default_factory=list)
+    office_order: list[str] = field(default_factory=list)
     log: list[str] = field(default_factory=list)
     legacy: Legacy = field(default_factory=Legacy)
     teams: list[Team] = field(default_factory=list)
@@ -52,10 +54,16 @@ class GameState:
             Team("Документация", "docs", 25, 82), Team("Поддержка", "support", 45, 88),
             Team("Продажи", "sales", 50, 55)
         ]
+        office_order = [
+            "teamlead_be", "teamlead_fe", "teamlead_qa", "docs", "customer",
+            "support", "sales", "ceo", "accounting", "legacy",
+        ]
+        random.shuffle(office_order)
         return cls(
             energy=config["starting_energy"], papers=config["starting_papers"],
             budget=config["starting_budget"], karma=config["starting_karma"],
             teams=groups,
+            office_order=office_order,
             customers=[
                 Customer("Understanding", "understanding", 75, 4),
                 Customer("Legal", "legal", 55, 3, True),

@@ -21,6 +21,10 @@ class OfficeScene(Scene):
 
     def __init__(self, game):
         super().__init__(game)
+        zone_by_key = {zone[2]: zone for zone in self.ZONES}
+        order = game.state.office_order or [zone[2] for zone in self.ZONES]
+        self.ZONES = [zone_by_key[key] for key in order if key in zone_by_key]
+        self.ZONES.extend(zone for zone in zone_by_key.values() if zone[2] not in order)
         self.hover = None
         self.selected_index = 0
         self.log_open = False
@@ -49,8 +53,6 @@ class OfficeScene(Scene):
 
     def open_dialog(self, key):
         from .dialog import DialogScene
-        if key not in self.game.state.talked_to_today:
-            self.game.state.talked_to_today.append(key)
         self.game.change_scene(DialogScene(self.game, key))
 
     def save(self):
@@ -80,6 +82,8 @@ class OfficeScene(Scene):
             self.game.change_scene(EndScene(self.game, "ПОРАЖЕНИЕ", "Бухгалтерия забрала бюджет."))
         elif state.round > self.game.config["game"]["max_rounds"]:
             self.game.change_scene(EndScene(self.game, "ПОРАЖЕНИЕ", "Раунды закончились, а релиз всё ещё в лифте."))
+        else:
+            self.game.change_scene(OfficeScene(self.game))
 
     def handle_event(self, event):
         for button in self.buttons:

@@ -37,7 +37,7 @@ class Game:
         }
         self.state = GameState.new(self.config["game"])
         self.scene = MenuScene(self)
-        self.back_button = Button((18, 18, 138, 40), "← Назад", self.back_to_previous, accent=(47, 82, 130), tooltip="Вернуться на предыдущий экран.")
+        self.back_button = Button((18, 12, 112, 32), "← Назад", self.back_to_previous, accent=(47, 82, 130), tooltip="Вернуться на предыдущий экран.")
         self.running = True
 
     def change_scene(self, scene):
@@ -92,6 +92,7 @@ class Game:
                 state.stress += 4
                 state.add_log("Поддержка ждёт бумажку. Сервер тоже ждёт.")
         state.talked_to_today.clear()
+        random.shuffle(state.office_order)
         if state.legacy.status == "replacing" and state.legacy.cascade:
             state.legacy.cascade += 1
             state.add_log("Legacy породил ещё одну ошибку в каскаде.")

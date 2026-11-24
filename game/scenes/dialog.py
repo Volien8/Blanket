@@ -10,16 +10,39 @@ from ..ui import Button, panel, text, wrap_text
 class DialogScene(Scene):
     def __init__(self, game, key):
         super().__init__(game)
+        self.key = key
         data_path = Path(__file__).resolve().parents[2] / "data" / "dialogs.json"
         with data_path.open(encoding="utf-8") as source:
             self.dialogs = json.load(source)
         self.dialog = self.dialogs[key]
+        if key == "ceo":
+            self.dialog = dict(self.dialog)
+            self.dialog["text"] = (
+                "Главное — разработать 10% софта и уже заявлять о нём как о готовом продукте. "
+                "Потом как-нибудь выкрутимся — лишь бы купили."
+            )
+            self.dialog["options"] = list(self.dialog["options"]) + [
+                {"text": "Продать продукт как готовый", "action": "ceo_sell_buggy"}
+            ]
+        self.dialog["options"] = list(self.dialog["options"]) + [
+            {"text": "Отмена", "action": "cancel"}
+        ]
         self.message = ""
-        self.buttons = [Button((150 + i * 330, 585, 300, 54), option["text"], lambda o=option: self.choose(o)) for i, option in enumerate(self.dialog["options"])]
+        button_width = 230 if len(self.dialog["options"]) == 5 else 270
+        gap = 15
+        total_width = len(self.dialog["options"]) * button_width + (len(self.dialog["options"]) - 1) * gap
+        start_x = (1280 - total_width) // 2
+        self.buttons = [
+            Button((start_x + i * (button_width + gap), 585, button_width, 54), option["text"], lambda o=option: self.choose(o))
+            for i, option in enumerate(self.dialog["options"])
+        ]
 
     def choose(self, option):
         state = self.game.state
         action = option["action"]
+        if action == "cancel":
+            self.back()
+            return
         effects = {
             "give_resource": lambda: (setattr(state, "energy", max(0, state.energy - 1)), setattr(state.teams[0], "readiness", min(100, state.teams[0].readiness + 15)), setattr(state, "karma", min(100, state.karma + 3)), "Ресурс отдан BE. FE уже смотрит неодобрительно."),
             "deny_resource": lambda: (setattr(state, "stress", state.stress + 5), setattr(state.teams[0], "suspicion", min(100, state.teams[0].suspicion + 10)), "BE получил отказ и записал это в блокнот."),
@@ -30,6 +53,7 @@ class DialogScene(Scene):
             "ceo_buy": lambda: (setattr(state, "papers", max(0, state.papers - 1)), setattr(state, "budget", min(100, state.budget + 15)), setattr(state, "karma", min(100, state.karma + 5)), "CEO подписала закупку. Бумажка победила."),
             "ceo_wait": lambda: (setattr(state, "stress", state.stress + 3), "CEO попросила прийти завтра. Классика."),
             "ceo_escalate": lambda: (setattr(state, "karma", max(0, state.karma - 4)), "CEO взяла юридическое давление на себя."),
+            "ceo_sell_buggy": lambda: (setattr(state, "stress", state.stress + 10), setattr(state, "karma", min(100, state.karma + 2)), "CEO объявила продукт готовым и отправила его продавать, несмотря на баги."),
             "give_fe_time": lambda: (setattr(state, "energy", max(0, state.energy - 1)), setattr(state.teams[1], "readiness", min(100, state.teams[1].readiness + 14)), "FE получил время и перестал смотреть на BE.") ,
             "check_fe_api": lambda: (setattr(state, "stress", state.stress + 2), setattr(state.teams[1], "readiness", min(100, state.teams[1].readiness + 8)), "API проверен. Нашлась одна маленькая катастрофа."),
             "trust_fe": lambda: (setattr(state.teams[1], "readiness", min(100, state.teams[1].readiness + 4)), "РП поверил фронтенду на слово."),
@@ -51,6 +75,8 @@ class DialogScene(Scene):
         }
         result = effects[action]()
         self.message = result[-1]
+        if self.key not in state.talked_to_today:
+            state.talked_to_today.append(self.key)
         state.add_log(self.message)
 
     def back(self):
