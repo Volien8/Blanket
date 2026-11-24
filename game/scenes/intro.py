@@ -32,7 +32,7 @@ class IntroScene(Scene):
         text(surface, GAME_TITLE, (640, 62), fonts["title"], colors["accent"], True)
         text(surface, "ПРЕАМБУЛА", (640, 115), fonts["heading"], colors["pink"], True)
         panel(surface, pygame.Rect(80, 155, 1120, 380), colors, (29, 38, 65))
-        draw_portrait(surface, (210, 330), 1.45, "ceo", colors, "stern")
+        draw_portrait(surface, (210, 330), 1.45, "manager", colors, "stern")
         text(surface, "Вы — руководитель проекта.", (390, 205), fonts["heading"], colors["text"], max_width=730)
         text(surface, "Ваша задача — провести флагманский релиз через 15 рабочих дней.",
              (390, 270), fonts["body"], colors["muted"], max_width=720)

@@ -8,9 +8,18 @@ _PORTRAIT_CACHE = {}
 
 
 def _load_portrait(role):
-    role = {"customer": "customers"}.get(role, role)
+    role = {
+        "customer": "integration",
+        "docs": "document.jpg",
+        "support": "support.jpeg",
+        "accounting": "buh",
+        "legacy": "legacy",
+        "manager": "manager",
+    }.get(role, role)
     if role not in _PORTRAIT_CACHE:
-        path = PORTRAIT_DIR / f"{role}.png"
+        path = PORTRAIT_DIR / role
+        if not path.suffix:
+            path = PORTRAIT_DIR / f"{role}.png"
         if path.exists():
             _PORTRAIT_CACHE[role] = pygame.image.load(str(path)).convert()
         else:

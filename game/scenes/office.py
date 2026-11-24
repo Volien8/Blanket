@@ -16,7 +16,7 @@ class OfficeScene(Scene):
         ("Продажи", (260, 305, 210, 140), "sales", "sales", "Продажи: обещания клиентам и неожиданные сюрпризы."),
         ("CEO", (485, 305, 210, 140), "ceo", "ceo", "Гендиректор: закупки, повышения и карма."),
         ("Бухгалтерия", (710, 305, 160, 140), "accounting", "accounting", "Бухгалтерия: штрафы, долг и печать «ШТРАФ»."),
-        ("Legacy-монолит", (935, 305, 310, 140), "legacy", "legacy", "Legacy: анализ, подмена и каскад ошибок."),
+        ("Legacy-монолит", (935, 305, 310, 140), "legacy", "legacy", "Legacy-монолит — старый связанный модуль, который трудно менять. Анализ снижает непрозрачность и тратит энергию; подмена может вызвать каскад ошибок; стабилизация гасит ошибки за бюджет. Для полной победы Legacy нужно заменить и погасить каскад."),
     ]
 
     def __init__(self, game):
@@ -107,19 +107,19 @@ class OfficeScene(Scene):
         colors, fonts, state = self.game.colors, self.game.fonts, self.game.state
         surface.fill(colors["bg"])
         panel(surface, pygame.Rect(0, 0, 1280, 90), colors)
-        text(surface, f"ДЕНЬ {state.round}/15", (20, 15), fonts["heading"], colors["text"])
+        text(surface, f"ДЕНЬ {state.round}/15", (180, 15), fonts["heading"], colors["text"])
         metrics = [("Энергия", state.energy, colors["yellow"]), ("Бумажки", state.papers, colors["yellow"]),
                    ("Бюджет", state.budget, colors["green"]), ("Карма CEO", state.karma, colors["purple"]),
                    ("Стресс", state.stress, colors["red"])]
         for i, (name, value, color) in enumerate(metrics):
-            text(surface, f"{name}: {value}", (20 + i * 150, 57), fonts["small"], color)
+            text(surface, f"{name}: {value}", (180 + i * 150, 57), fonts["small"], color)
         text(surface, "ОФИС / проект «Одеяло»", (1060, 25), fonts["small"], colors["muted"], True)
         for index, (name, rect, key, role, hint) in enumerate(self.ZONES):
             box = pygame.Rect(rect)
             selected = index == self.selected_index
             fill = colors["panel_light"] if selected else colors["panel"]
             panel(surface, box, colors, fill)
-            avatar_rect = pygame.Rect(box.centerx - 42, box.centery - 2, 84, 76)
+            avatar_rect = pygame.Rect(box.centerx - 30, box.centery - 25, 60, 50) if key == "legacy" else pygame.Rect(box.centerx - 42, box.centery - 2, 84, 76)
             if not draw_avatar(surface, avatar_rect, role, colors, selected):
                 draw_person(surface, (box.centerx, box.centery + 8), 0.8, role, colors, selected)
             text(surface, name, (box.centerx, box.top + 20), fonts["small"], colors["text"], True, max_width=box.width - 20)
