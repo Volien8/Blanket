@@ -11,7 +11,7 @@ def _load_portrait(role):
     role = {
         "customer": "support.jpeg",
         "docs": "integration",
-        "support": "document.jpg",
+        "support": "support.png",
         "accounting": "buh",
         "legacy": "legacy",
         "manager": "manager",

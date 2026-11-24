@@ -34,7 +34,8 @@ class IntroScene(Scene):
         panel(surface, pygame.Rect(80, 155, 1120, 380), colors, (29, 38, 65))
         draw_portrait(surface, (210, 330), 1.45, "manager", colors, "stern")
         text(surface, "Вы — руководитель проекта.", (390, 205), fonts["heading"], colors["text"], max_width=730)
-        text(surface, "Ваша задача — провести флагманский релиз через 15 рабочих дней.",
+        max_rounds = self.game.config["game"]["max_rounds"]
+        text(surface, f"Ваша задача — провести флагманский релиз через {max_rounds} рабочих дней.",
              (390, 270), fonts["body"], colors["muted"], max_width=720)
         text(surface, "Пять команд делят один ресурс, QA требует время, заказчики требуют всё сразу, а бухгалтерия уже приготовила печать.",
              (390, 325), fonts["body"], colors["muted"], max_width=720)

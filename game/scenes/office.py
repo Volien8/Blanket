@@ -113,7 +113,8 @@ class OfficeScene(Scene):
         colors, fonts, state = self.game.colors, self.game.fonts, self.game.state
         surface.fill(colors["bg"])
         panel(surface, pygame.Rect(0, 0, 1280, 90), colors)
-        text(surface, f"ДЕНЬ {state.round}/15", (180, 15), fonts["heading"], colors["text"])
+        max_rounds = self.game.config["game"]["max_rounds"]
+        text(surface, f"ДЕНЬ {state.round}/{max_rounds}", (180, 15), fonts["heading"], colors["text"])
         metrics = [("Энергия", state.energy, colors["yellow"]), ("Бумажки", state.papers, colors["yellow"]),
                    ("Бюджет", state.budget, colors["green"]), ("Карма CEO", state.karma, colors["purple"]),
                    ("Стресс", state.stress, colors["red"])]

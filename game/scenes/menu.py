@@ -58,7 +58,8 @@ class MenuScene(Scene):
             tooltip(surface, active_button.tooltip, (active_button.rect.right + 18, active_button.rect.y), fonts["small"], colors)
         if self.about:
             panel(surface, pygame.Rect(390, 560, 500, 120), colors, colors["panel_light"])
-            text(surface, "Цель: довести релиз до заказчиков за 15 дней.", (640, 585), fonts["small"], colors["text"], True, 460)
+            max_rounds = self.game.config["game"]["max_rounds"]
+            text(surface, f"Цель: довести релиз до заказчиков за {max_rounds} дней.", (640, 585), fonts["small"], colors["text"], True, 460)
             text(surface, "Следите за бюджетом, кармой, стрессом и Legacy.", (640, 620), fonts["small"], colors["yellow"], True, 460)
             text(surface, f"Автор: {AUTHOR_NAME}", (640, 652), fonts["small"], colors["muted"], True)
         poem = [
