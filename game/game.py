@@ -17,6 +17,7 @@ class Game:
         window = self.config["window"]
         pygame.init()
         self.screen = pygame.display.set_mode((window["width"], window["height"]))
+        self.canvas = pygame.Surface((1280, 720))
         pygame.display.set_caption("ОДЕЯЛО — офисный квест")
         self.clock = pygame.time.Clock()
         self.fonts = {
@@ -92,9 +93,14 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
                 else:
+                    if hasattr(event, "pos") and event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
+                        scale_x = self.canvas.get_width() / self.screen.get_width()
+                        scale_y = self.canvas.get_height() / self.screen.get_height()
+                        event = pygame.event.Event(event.type, {**event.dict, "pos": (int(event.pos[0] * scale_x), int(event.pos[1] * scale_y))})
                     self.scene.handle_event(event)
             self.scene.update()
-            self.scene.draw(self.screen)
+            self.scene.draw(self.canvas)
+            pygame.transform.smoothscale(self.canvas, self.screen.get_size(), self.screen)
             pygame.display.flip()
             self.clock.tick(self.config["window"]["fps"])
         pygame.quit()

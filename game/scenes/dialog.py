@@ -2,6 +2,7 @@ import json
 import pygame
 
 from ..scene import Scene
+from ..people import draw_person
 from ..ui import Button, panel, text
 
 
@@ -46,8 +47,7 @@ class DialogScene(Scene):
         colors, fonts = self.game.colors, self.game.fonts
         surface.fill(colors["bg"])
         panel(surface, pygame.Rect(80, 90, 1120, 410), colors)
-        pygame.draw.circle(surface, colors["accent"], (250, 290), 115)
-        text(surface, self.dialog["portrait"], (250, 290), fonts["heading"], colors["text"], True)
+        draw_person(surface, (250, 285), 2.0, self.dialog["portrait"].lower(), colors, True)
         text(surface, self.dialog["speaker"], (250, 430), fonts["heading"], colors["text"], True)
         text(surface, self.dialog["text"], (430, 180), fonts["heading"], colors["text"])
         if self.message:

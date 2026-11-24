@@ -1,12 +1,29 @@
 import pygame
 
 
+def wrap_text(value, font, max_width):
+    words = str(value).split()
+    lines, current = [], ""
+    for word in words:
+        candidate = word if not current else f"{current} {word}"
+        if font.size(candidate)[0] <= max_width:
+            current = candidate
+        else:
+            if current:
+                lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return lines or [""]
+
+
 class Button:
-    def __init__(self, rect, text, callback, accent=(64, 132, 190)):
+    def __init__(self, rect, text, callback, accent=(64, 132, 190), tooltip=None):
         self.rect = pygame.Rect(rect)
         self.text = text
         self.callback = callback
         self.accent = accent
+        self.tooltip = tooltip
         self.hover = False
 
     def handle(self, event):
@@ -19,15 +36,26 @@ class Button:
         fill = colors["accent"] if self.hover else self.accent
         pygame.draw.rect(surface, fill, self.rect, border_radius=8)
         pygame.draw.rect(surface, colors["border"], self.rect, 2, border_radius=8)
-        text = font.render(self.text, True, colors["text"])
-        surface.blit(text, text.get_rect(center=self.rect.center))
+        lines = wrap_text(self.text, font, self.rect.width - 18)
+        line_height = font.get_linesize()
+        start_y = self.rect.centery - (len(lines) - 1) * line_height // 2
+        for index, line in enumerate(lines):
+            rendered = font.render(line, True, colors["text"])
+            surface.blit(rendered, rendered.get_rect(center=(self.rect.centerx, start_y + index * line_height)))
 
 
-def text(surface, value, position, font, color, center=False):
-    rendered = font.render(str(value), True, color)
-    rect = rendered.get_rect(center=position) if center else rendered.get_rect(topleft=position)
-    surface.blit(rendered, rect)
-    return rect
+def text(surface, value, position, font, color, center=False, max_width=None, line_gap=4):
+    lines = wrap_text(value, font, max_width) if max_width else [str(value)]
+    line_height = font.get_linesize() + line_gap
+    total_height = len(lines) * line_height - line_gap
+    for index, line in enumerate(lines):
+        rendered = font.render(line, True, color)
+        if center:
+            rect = rendered.get_rect(center=(position[0], position[1] - total_height // 2 + index * line_height + line_height // 2))
+        else:
+            rect = rendered.get_rect(topleft=(position[0], position[1] + index * line_height))
+        surface.blit(rendered, rect)
+    return pygame.Rect(position[0], position[1], max((font.size(line)[0] for line in lines), default=0), total_height)
 
 
 def panel(surface, rect, colors, fill=None):
@@ -40,3 +68,17 @@ def bar(surface, rect, value, maximum, color, colors):
     width = int(rect.width * max(0, min(value, maximum)) / maximum)
     pygame.draw.rect(surface, color, (rect.x, rect.y, width, rect.height), border_radius=5)
     pygame.draw.rect(surface, colors["border"], rect, 1, border_radius=5)
+
+
+def tooltip(surface, message, position, font, colors, max_width=300):
+    lines = wrap_text(message, font, max_width - 24)
+    line_height = font.get_linesize()
+    width = min(max_width, max(font.size(line)[0] for line in lines) + 24)
+    height = len(lines) * line_height + 18
+    x = max(8, min(position[0], surface.get_width() - width - 8))
+    y = max(8, min(position[1], surface.get_height() - height - 8))
+    box = pygame.Rect(x, y, width, height)
+    pygame.draw.rect(surface, (21, 25, 33), box, border_radius=8)
+    pygame.draw.rect(surface, colors["accent"], box, 2, border_radius=8)
+    for index, line in enumerate(lines):
+        text(surface, line, (box.x + 12, box.y + 9 + index * line_height), font, colors["text"])
