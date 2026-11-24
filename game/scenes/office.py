@@ -49,6 +49,8 @@ class OfficeScene(Scene):
 
     def open_dialog(self, key):
         from .dialog import DialogScene
+        if key not in self.game.state.talked_to_today:
+            self.game.state.talked_to_today.append(key)
         self.game.change_scene(DialogScene(self.game, key))
 
     def save(self):
@@ -117,12 +119,17 @@ class OfficeScene(Scene):
         for index, (name, rect, key, role, hint) in enumerate(self.ZONES):
             box = pygame.Rect(rect)
             selected = index == self.selected_index
-            fill = colors["panel_light"] if selected else colors["panel"]
+            talked = key in state.talked_to_today
+            fill = (40, 66, 68) if talked else (colors["panel_light"] if selected else colors["panel"])
             panel(surface, box, colors, fill)
+            if talked:
+                pygame.draw.rect(surface, colors["green"], box, 3, border_radius=12)
             avatar_rect = pygame.Rect(box.centerx - 30, box.centery - 25, 60, 50) if key == "legacy" else pygame.Rect(box.centerx - 42, box.centery - 2, 84, 76)
             if not draw_avatar(surface, avatar_rect, role, colors, selected):
                 draw_person(surface, (box.centerx, box.centery + 8), 0.8, role, colors, selected)
             text(surface, name, (box.centerx, box.top + 20), fonts["small"], colors["text"], True, max_width=box.width - 20)
+            if talked:
+                text(surface, "✓", (box.right - 16, box.top + 14), fonts["small"], colors["green"], True)
             if key == "legacy":
                 legacy = state.legacy
                 text(surface, f"{legacy.status} / каскад {legacy.cascade}", (box.centerx, box.bottom - 18), fonts["small"], colors["red"], True, max_width=box.width - 20)

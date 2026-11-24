@@ -9,9 +9,9 @@ _PORTRAIT_CACHE = {}
 
 def _load_portrait(role):
     role = {
-        "customer": "integration",
-        "docs": "document.jpg",
-        "support": "support.jpeg",
+        "customer": "support.jpeg",
+        "docs": "integration",
+        "support": "document.jpg",
         "accounting": "buh",
         "legacy": "legacy",
         "manager": "manager",

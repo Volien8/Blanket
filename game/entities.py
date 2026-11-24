@@ -38,6 +38,7 @@ class GameState:
     stress: int = 0
     release_sent: bool = False
     release_mode: str | None = None
+    talked_to_today: list[str] = field(default_factory=list)
     log: list[str] = field(default_factory=list)
     legacy: Legacy = field(default_factory=Legacy)
     teams: list[Team] = field(default_factory=list)

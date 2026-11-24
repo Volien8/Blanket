@@ -91,6 +91,7 @@ class Game:
             else:
                 state.stress += 4
                 state.add_log("Поддержка ждёт бумажку. Сервер тоже ждёт.")
+        state.talked_to_today.clear()
         if state.legacy.status == "replacing" and state.legacy.cascade:
             state.legacy.cascade += 1
             state.add_log("Legacy породил ещё одну ошибку в каскаде.")
