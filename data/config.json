@@ -1,5 +1,5 @@
 {
-  "window": {"width": 1920, "height": 1080, "fps": 60},
+  "window": {"width": 1280, "height": 720, "fps": 60},
   "game": {
     "max_rounds": 15,
     "starting_energy": 5,

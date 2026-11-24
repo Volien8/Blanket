@@ -56,7 +56,7 @@ class ReleaseScene(Scene):
             text(surface, team.name, (190, y), fonts["body"], colors["text"])
             bar(surface, pygame.Rect(370, y + 5, 500, 22), team.readiness, 100, colors["green"], colors)
             text(surface, f"{team.readiness}%", (895, y), fonts["body"], colors["text"])
-        text(surface, f"Легаси: {state.legacy.status}, каскад {state.legacy.cascade}", (640, 530), fonts["body"], colors["red"], True)
+        text(surface, f"Legacy: {state.legacy.status}, каскад {state.legacy.cascade}", (640, 530), fonts["body"], colors["red"], True)
         text(surface, self.message, (640, 575), fonts["small"], colors["yellow"], True)
         for button in self.buttons:
             button.draw(surface, fonts["small"], colors)

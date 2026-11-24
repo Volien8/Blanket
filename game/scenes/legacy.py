@@ -41,7 +41,7 @@ class LegacyScene(Scene):
                 self.message = "Подмена закончена. Каскад тоже. Плохо."
             else:
                 legacy.status = "replaced"
-                self.message = "Легаси подменён. Одеяло слегка отпустило."
+                self.message = "Legacy подменён. Одеяло слегка отпустило."
         else:
             self.message = f"Подмена {legacy.progress}%. Каскад: {legacy.cascade}."
         state.add_log(self.message)

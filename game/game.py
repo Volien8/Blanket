@@ -4,6 +4,7 @@ from pathlib import Path
 import pygame
 
 from .entities import GameState
+from .branding import AUTHOR_NAME, GAME_TITLE
 from .scenes.menu import MenuScene
 
 
@@ -18,7 +19,8 @@ class Game:
         pygame.init()
         self.screen = pygame.display.set_mode((window["width"], window["height"]))
         self.canvas = pygame.Surface((1280, 720))
-        pygame.display.set_caption("ОДЕЯЛО — офисный квест")
+        self.author = AUTHOR_NAME
+        pygame.display.set_caption(f"{GAME_TITLE} — офисный квест — {self.author}")
         self.clock = pygame.time.Clock()
         self.fonts = {
             "title": pygame.font.SysFont("arial", 46, bold=True),
@@ -27,10 +29,10 @@ class Game:
             "small": pygame.font.SysFont("arial", 16),
         }
         self.colors = {
-            "bg": (25, 29, 38), "panel": (42, 49, 63), "panel_light": (62, 73, 91),
-            "text": (235, 239, 245), "muted": (157, 168, 183), "accent": (76, 156, 216),
-            "green": (92, 196, 123), "red": (224, 92, 98), "yellow": (236, 194, 76),
-            "purple": (190, 124, 218), "border": (105, 119, 140)
+            "bg": (17, 22, 38), "panel": (34, 42, 68), "panel_light": (49, 61, 96),
+            "text": (245, 248, 255), "muted": (170, 184, 211), "accent": (54, 174, 255),
+            "green": (84, 224, 151), "red": (255, 103, 122), "yellow": (255, 211, 77),
+            "purple": (219, 123, 255), "border": (102, 126, 178), "pink": (255, 103, 191)
         }
         self.state = GameState.new(self.config["game"])
         self.scene = MenuScene(self)
@@ -83,7 +85,7 @@ class Game:
                 state.add_log("Поддержка ждёт бумажку. Сервер тоже ждёт.")
         if state.legacy.status == "replacing" and state.legacy.cascade:
             state.legacy.cascade += 1
-            state.add_log("Легаси породил ещё одну ошибку в каскаде.")
+            state.add_log("Legacy породил ещё одну ошибку в каскаде.")
         state.energy = 5
         state.round += 1
 

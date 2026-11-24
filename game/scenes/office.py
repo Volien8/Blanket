@@ -16,7 +16,7 @@ class OfficeScene(Scene):
         ("Продажи", (260, 305, 210, 140), "sales", "sales", "Продажи: обещания клиентам и неожиданные сюрпризы."),
         ("CEO", (485, 305, 210, 140), "ceo", "ceo", "Гендиректор: закупки, повышения и карма."),
         ("Бухгалтерия", (710, 305, 160, 140), "accounting", "accounting", "Бухгалтерия: штрафы, долг и печать «ШТРАФ»."),
-        ("Легаси-монолит", (935, 305, 310, 140), "legacy", "legacy", "Легаси: анализ, подмена и каскад ошибок."),
+        ("Legacy-монолит", (935, 305, 310, 140), "legacy", "legacy", "Legacy: анализ, подмена и каскад ошибок."),
     ]
 
     def __init__(self, game):
@@ -27,7 +27,7 @@ class OfficeScene(Scene):
         self.buttons = [
             Button((35, 635, 175, 45), "Синхронизация", self.open_sync, tooltip="Сравнить ответы трёх команд."),
             Button((225, 635, 145, 45), "Релиз", self.open_release, tooltip="Проверить готовность и отправить релиз."),
-            Button((385, 635, 145, 45), "Легаси", self.open_legacy, tooltip="Открыть экран ремонта монолита."),
+            Button((385, 635, 145, 45), "Legacy", self.open_legacy, tooltip="Открыть экран ремонта монолита."),
             Button((545, 635, 180, 45), "Завершить день", self.next_day, tooltip="Продвинуться на следующий день."),
             Button((740, 635, 145, 45), "Сохранить", self.save, tooltip="Записать состояние в слот."),
             Button((900, 635, 145, 45), "Журнал", self.toggle_log, tooltip="Показать последние события."),
@@ -118,7 +118,7 @@ class OfficeScene(Scene):
                    ("Стресс", state.stress, colors["red"])]
         for i, (name, value, color) in enumerate(metrics):
             text(surface, f"{name}: {value}", (20 + i * 150, 57), fonts["small"], color)
-        text(surface, "OPEN SPACE / проект «Одеяло»", (1060, 25), fonts["small"], colors["muted"], True)
+        text(surface, "ОФИС / проект «Одеяло»", (1060, 25), fonts["small"], colors["muted"], True)
         for index, (name, rect, key, role, hint) in enumerate(self.ZONES):
             box = pygame.Rect(rect)
             selected = index == self.selected_index
