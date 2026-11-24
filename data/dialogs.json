@@ -1,0 +1,32 @@
+{
+  "teamlead_be": {
+    "speaker": "Тимлид BE",
+    "portrait": "BE",
+    "text": "Нам нужно больше ресурсов, иначе новые фичи не сделать.",
+    "options": [
+      {"text": "Дам ресурс", "action": "give_resource"},
+      {"text": "Откажу", "action": "deny_resource"},
+      {"text": "Сам разберусь", "action": "intervene"}
+    ]
+  },
+  "teamlead_qa": {
+    "speaker": "Тимлид QA",
+    "portrait": "QA",
+    "text": "Автотесты зелёные. Ручные не успели. Но автотесты же зелёные, правда?",
+    "options": [
+      {"text": "Проверить вручную", "action": "manual_qa"},
+      {"text": "Давить на QA", "action": "pressure_qa"},
+      {"text": "Поверю отчёту", "action": "trust_qa"}
+    ]
+  },
+  "ceo": {
+    "speaker": "Гендиректор",
+    "portrait": "CEO",
+    "text": "Закупка? Обоснуйте бумажками. И не говорите «нужно, и всё».",
+    "options": [
+      {"text": "Показать расчёт", "action": "ceo_buy"},
+      {"text": "Попросить ещё время", "action": "ceo_wait"},
+      {"text": "Эскалировать заказчика", "action": "ceo_escalate"}
+    ]
+  }
+}

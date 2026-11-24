@@ -1,0 +1,12 @@
+{
+  "window": {"width": 1280, "height": 720, "fps": 60},
+  "game": {
+    "max_rounds": 15,
+    "starting_energy": 5,
+    "starting_papers": 2,
+    "starting_budget": 100,
+    "starting_karma": 50,
+    "debt_limit": 0,
+    "legacy_cascade_limit": 8
+  }
+}
