@@ -15,6 +15,10 @@ class LegacyScene(Scene):
             Button((930, 510, 180, 52), "Назад", self.back),
         ]
 
+    def mark_activity(self):
+        if "legacy" not in self.game.state.talked_to_today:
+            self.game.state.talked_to_today.append("legacy")
+
     def analyze(self):
         state = self.game.state
         if state.energy <= 0:
@@ -23,6 +27,7 @@ class LegacyScene(Scene):
         state.energy -= 1
         state.legacy.opacity = max(0, state.legacy.opacity - 20)
         self.message = "Анализ завершён. Непрозрачность снизилась."
+        self.mark_activity()
         state.add_log(self.message)
 
     def replace(self):
@@ -44,6 +49,7 @@ class LegacyScene(Scene):
                 self.message = "Legacy подменён. Одеяло слегка отпустило."
         else:
             self.message = f"Подмена {legacy.progress}%. Каскад: {legacy.cascade}."
+        self.mark_activity()
         state.add_log(self.message)
 
     def stabilize(self):
@@ -56,6 +62,7 @@ class LegacyScene(Scene):
         if state.legacy.status == "broken" and state.legacy.cascade == 0:
             state.legacy.status = "replaced"
         self.message = "Стабилизация проведена. Красное облако стало меньше."
+        self.mark_activity()
         state.add_log(self.message)
 
     def back(self):

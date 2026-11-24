@@ -36,6 +36,19 @@ class DialogScene(Scene):
             Button((start_x + i * (button_width + gap), 585, button_width, 54), option["text"], lambda o=option: self.choose(o))
             for i, option in enumerate(self.dialog["options"])
         ]
+        self.repeat_button = Button((385, 520, 230, 42), "Повторить реплику", self.repeat_message)
+        self.full_message = self.dialog["text"]
+        self.visible_chars = 0
+        self.typing_started = pygame.time.get_ticks()
+        self.game.audio.speak(self.full_message, self.key)
+
+    def repeat_message(self):
+        self.game.audio.repeat_voice()
+
+    def update(self):
+        if self.visible_chars < len(self.full_message):
+            elapsed = pygame.time.get_ticks() - self.typing_started
+            self.visible_chars = min(len(self.full_message), elapsed // 24)
 
     def choose(self, option):
         state = self.game.state
@@ -61,7 +74,7 @@ class DialogScene(Scene):
             "ask_docs_draft": lambda: (setattr(state.teams[4], "readiness", min(100, state.teams[4].readiness + 8)), "Черновик найден. В нём больше вопросов, чем страниц."),
             "trust_docs": lambda: (setattr(state.teams[4], "readiness", min(100, state.teams[4].readiness + 3)), "Документация отправлена как есть."),
             "customer_escalate": lambda: (setattr(state, "karma", max(0, state.karma - 3)), setattr(state.customers[1], "satisfaction", min(100, state.customers[1].satisfaction + 8)), "CEO подключилась к разговору с юристом."),
-            "customer_crutch": lambda: (setattr(state, "budget", max(0, state.budget - 5)), setattr(state.customers[1], "satisfaction", min(100, state.customers[1].satisfaction + 5)), "Костыль приклеен. Держится на честном слове."),
+            "customer_crutch": lambda: (setattr(state, "budget", state.budget - 5), setattr(state.customers[1], "satisfaction", min(100, state.customers[1].satisfaction + 5)), "Костыль приклеен. Держится на честном слове."),
             "customer_explain": lambda: (setattr(state, "stress", state.stress + 3), "Заказчику объяснили порядок. Он записал номер юриста."),
             "support_paper": lambda: (setattr(state, "papers", max(0, state.papers - 1)), setattr(state.teams[5], "readiness", min(100, state.teams[5].readiness + 10)), "Бумажка выдана. Поддержка зашевелилась."),
             "support_star": lambda: (setattr(state, "energy", max(0, state.energy - 1)), setattr(state.teams[5], "readiness", min(100, state.teams[5].readiness + 15)), "Звёздный сотрудник решил вопрос за пять минут."),
@@ -70,14 +83,20 @@ class DialogScene(Scene):
             "sales_cancel": lambda: (setattr(state, "karma", max(0, state.karma - 3)), "Продажи обещали больше ничего не обещать."),
             "sales_bluff": lambda: (setattr(state, "stress", state.stress + 7), "Все сделали вид, что мобильное приложение было в плане."),
             "accounting_sign": lambda: (setattr(state, "papers", max(0, state.papers - 1)), setattr(state, "budget", min(100, state.budget + 5)), "Акт подписан. Печать разочарована."),
-            "accounting_pay": lambda: (setattr(state, "budget", max(0, state.budget - 15)), "Штраф оплачен. Бухгалтерия улыбается."),
+            "accounting_pay": lambda: (setattr(state, "budget", state.budget - 15), "Штраф оплачен. Бухгалтерия улыбается."),
             "accounting_wait": lambda: (setattr(state, "stress", state.stress + 5), "Отсрочка согласована до следующего звонка."),
         }
         result = effects[action]()
         self.message = result[-1]
+        self.full_message = self.message
+        self.visible_chars = len(self.full_message)
+        self.game.audio.play("success")
+        self.game.audio.speak(self.message, self.key, action)
+        state.decision_flags[action] = state.round
         if self.key not in state.talked_to_today:
             state.talked_to_today.append(self.key)
         state.add_log(self.message)
+        self.game.notify(self.message, self.game.colors["green"])
 
     def back(self):
         from .office import OfficeScene
@@ -86,6 +105,7 @@ class DialogScene(Scene):
     def handle_event(self, event):
         for button in self.buttons:
             button.handle(event)
+        self.repeat_button.handle(event)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.back()
 
@@ -108,9 +128,10 @@ class DialogScene(Scene):
         panel(surface, pygame.Rect(55, 55, 1170, 500), colors, (30, 39, 68))
         draw_portrait(surface, (215, 340), 1.65, self.dialog["portrait"].lower(), colors, "neutral")
         text(surface, self.dialog["speaker"], (215, 490), fonts["heading"], colors["text"], True)
-        current_text = self.message or self.dialog["text"]
+        current_text = (self.message or self.dialog["text"])[:self.visible_chars]
         self.draw_bubble(surface, pygame.Rect(385, 130, 755, 205), current_text, fonts["body"], colors)
         text(surface, "Выберите ответ", (760, 465), fonts["heading"], colors["pink"], True)
         for button in self.buttons:
             button.draw(surface, fonts["small"], colors)
+        self.repeat_button.draw(surface, fonts["small"], colors)
         text(surface, "Esc — назад", (30, 25), fonts["small"], colors["muted"])

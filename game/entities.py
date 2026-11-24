@@ -40,6 +40,7 @@ class GameState:
     release_sent: bool = False
     release_mode: str | None = None
     talked_to_today: list[str] = field(default_factory=list)
+    decision_flags: dict[str, int] = field(default_factory=dict)
     office_order: list[str] = field(default_factory=list)
     log: list[str] = field(default_factory=list)
     legacy: Legacy = field(default_factory=Legacy)

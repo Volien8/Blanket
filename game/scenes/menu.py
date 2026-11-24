@@ -10,21 +10,41 @@ class MenuScene(Scene):
     def __init__(self, game):
         super().__init__(game)
         self.about = False
-        self.has_save = (Path(__file__).resolve().parents[2] / "save" / "slot1.json").exists()
+        self.selected_slot = 1
+        self.has_save = self.slot_exists()
         self.buttons = [
             Button((470, 285, 340, 52), "Новая игра", self.new_game, tooltip="Начать новую историю руководителя проекта."),
-            Button((470, 350, 340, 52), "Продолжить", self.continue_game, tooltip="Загрузить последнее сохранение." if self.has_save else "Сохранений пока нет.", enabled=self.has_save),
+            Button((470, 350, 340, 52), "Продолжить", self.continue_game, tooltip="Загрузить выбранный слот." if self.has_save else "Сохранений в выбранном слоте пока нет.", enabled=self.has_save),
             Button((470, 415, 340, 52), "Об игре", self.toggle_about, tooltip="Посмотреть цель и правила игры."),
             Button((470, 480, 340, 52), "Выход", self.quit, tooltip="Закрыть игру."),
+            Button((940, 65, 62, 34), "<", self.previous_slot, tooltip="Предыдущий слот сохранения."),
+            Button((1100, 65, 62, 34), ">", self.next_slot, tooltip="Следующий слот сохранения."),
         ]
 
+    def slot_exists(self):
+        return (Path(__file__).resolve().parents[2] / "save" / f"slot{self.selected_slot}.json").exists()
+
+    def update_slot_state(self):
+        self.has_save = self.slot_exists()
+        self.buttons[1].enabled = self.has_save
+        self.game.active_slot = self.selected_slot
+
+    def previous_slot(self):
+        self.selected_slot = 3 if self.selected_slot == 1 else self.selected_slot - 1
+        self.update_slot_state()
+
+    def next_slot(self):
+        self.selected_slot = 1 if self.selected_slot == 3 else self.selected_slot + 1
+        self.update_slot_state()
+
     def new_game(self):
+        self.game.active_slot = self.selected_slot
         self.game.new_state()
         from .intro import IntroScene
         self.game.change_scene(IntroScene(self.game))
 
     def continue_game(self):
-        if self.has_save and self.game.load():
+        if self.has_save and self.game.load(self.selected_slot):
             from .office import OfficeScene
             self.game.change_scene(OfficeScene(self.game))
         else:
@@ -51,6 +71,7 @@ class MenuScene(Scene):
         text(surface, "Офисный квест о дедлайнах, командах и одном убежавшем одеяле",
              (640, 145), fonts["body"], colors["muted"], True, max_width=620)
         text(surface, "Выберите действие", (640, 225), fonts["heading"], colors["text"], True)
+        text(surface, f"Слот сохранения: {self.selected_slot}", (1050, 83), fonts["small"], colors["muted"], True)
         for button in self.buttons:
             button.draw(surface, fonts["body"], colors)
         active_button = next((button for button in self.buttons if button.hover and button.tooltip), None)

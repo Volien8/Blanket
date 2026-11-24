@@ -11,9 +11,11 @@ class IntroScene(Scene):
 
     def __init__(self, game):
         super().__init__(game)
+        self.game.audio.speak("Вступление. Десять рабочих дней до релиза.")
         self.begin = Button((830, 575, 300, 55), "Начать рабочий день", self.start)
 
     def start(self):
+        self.game.audio.play("success")
         from .office import OfficeScene
         self.game.state.add_log("РП вошёл в офис. Одеяло уже тянется к выходу.")
         self.game.change_scene(OfficeScene(self.game))

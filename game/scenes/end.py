@@ -7,6 +7,7 @@ from ..ui import Button, text
 class EndScene(Scene):
     def __init__(self, game, title, reason):
         super().__init__(game)
+        self.game.audio.speak(f"{title}. {reason}")
         self.title, self.reason = title, reason
         self.buttons = [Button((380, 500, 240, 52), "Заново", self.restart), Button((660, 500, 240, 52), "В меню", self.menu)]
 

@@ -57,6 +57,7 @@ class OfficeScene(Scene):
 
     def save(self):
         self.game.save()
+        self.game.notify(f"Сохранено в слот {self.game.active_slot}", self.game.colors["green"])
 
     def toggle_log(self):
         self.log_open = not self.log_open
@@ -127,6 +128,9 @@ class OfficeScene(Scene):
             talked = key in state.talked_to_today
             fill = (40, 66, 68) if talked else (colors["panel_light"] if selected else colors["panel"])
             panel(surface, box, colors, fill)
+            if selected or self.hover == index:
+                pulse = 2 + int((pygame.time.get_ticks() // 180) % 2)
+                pygame.draw.rect(surface, colors["accent"], box.inflate(pulse, pulse), 2, border_radius=12)
             if talked:
                 pygame.draw.rect(surface, colors["green"], box, 3, border_radius=12)
             avatar_rect = pygame.Rect(box.centerx - 30, box.centery - 25, 60, 50) if key == "legacy" else pygame.Rect(box.centerx - 42, box.centery - 2, 84, 76)

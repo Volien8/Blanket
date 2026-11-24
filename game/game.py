@@ -5,6 +5,7 @@ import pygame
 
 from .entities import GameState
 from .branding import AUTHOR_NAME, GAME_TITLE
+from .audio import AudioManager
 from .scenes.menu import MenuScene
 from .ui import Button
 
@@ -19,6 +20,10 @@ class Game:
         window = self.config["window"]
         pygame.init()
         self.screen = pygame.display.set_mode((window["width"], window["height"]))
+        self.audio = AudioManager(ROOT)
+        self.notifications = []
+        self.transition_alpha = 0
+        self.active_slot = 1
         self.canvas = pygame.Surface((1280, 720))
         self.author = AUTHOR_NAME
         pygame.display.set_caption(f"{GAME_TITLE} — офисный квест — {self.author}")
@@ -42,6 +47,7 @@ class Game:
 
     def change_scene(self, scene):
         self.scene = scene
+        self.transition_alpha = 210
 
     def new_state(self):
         self.state = GameState.new(self.config["game"])
@@ -52,15 +58,23 @@ class Game:
         else:
             self.change_scene(MenuScene(self))
 
-    def save(self):
-        path = ROOT / "save" / "slot1.json"
+    def notify(self, message, color=None):
+        self.notifications.append({"text": message, "until": pygame.time.get_ticks() + 2600, "color": color or self.colors["yellow"]})
+        self.notifications = self.notifications[-4:]
+
+    def save(self, slot=None):
+        if slot is not None:
+            self.active_slot = max(1, min(3, int(slot)))
+        path = ROOT / "save" / f"slot{self.active_slot}.json"
         path.parent.mkdir(exist_ok=True)
         with path.open("w", encoding="utf-8") as target:
             json.dump(self.state.to_dict(), target, ensure_ascii=False, indent=2)
         self.state.add_log("Сохранение записано в слот «Последняя надежда».")
 
-    def load(self):
-        path = ROOT / "save" / "slot1.json"
+    def load(self, slot=None):
+        if slot is not None:
+            self.active_slot = max(1, min(3, int(slot)))
+        path = ROOT / "save" / f"slot{self.active_slot}.json"
         if not path.exists():
             return False
         with path.open(encoding="utf-8") as source:
@@ -75,7 +89,7 @@ class Game:
             customer.patience = max(0, customer.patience - 1)
         event = random.choice(["accounting", "sales", "customer", "support"])
         if event == "accounting":
-            state.budget = max(0, state.budget - 10)
+            state.budget -= 10
             state.add_log("Бухгалтерия выписала штраф. Штамп поставлен с удовольствием.")
         elif event == "sales":
             state.stress += 8
@@ -93,6 +107,12 @@ class Game:
                 state.add_log("Поддержка ждёт бумажку. Сервер тоже ждёт.")
         state.talked_to_today.clear()
         random.shuffle(state.office_order)
+        if "ceo_sell_buggy" in state.decision_flags:
+            state.stress += 3
+            state.add_log("Проданный сырой продукт начал возвращаться с вопросами от клиентов.")
+        if "sales_bluff" in state.decision_flags:
+            state.budget -= 5
+            state.add_log("Продажи прислали счёт за обещания, которых не было в плане.")
         if state.legacy.status == "replacing" and state.legacy.cascade:
             state.legacy.cascade += 1
             state.add_log("Legacy породил ещё одну ошибку в каскаде.")
@@ -106,6 +126,8 @@ class Game:
                     self.running = False
                 else:
                     consumed = False
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        self.audio.play("click")
                     if not isinstance(self.scene, MenuScene):
                         self.back_button.handle(event)
                         consumed = event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.back_button.rect.collidepoint(event.pos)
@@ -119,6 +141,19 @@ class Game:
             self.scene.draw(self.canvas)
             if not isinstance(self.scene, MenuScene):
                 self.back_button.draw(self.canvas, self.fonts["small"], self.colors)
+            now = pygame.time.get_ticks()
+            self.notifications = [item for item in self.notifications if item["until"] > now]
+            for index, item in enumerate(self.notifications):
+                box = pygame.Rect(18, 58 + index * 42, 380, 34)
+                pygame.draw.rect(self.canvas, (21, 25, 33), box, border_radius=8)
+                pygame.draw.rect(self.canvas, item["color"], box, 2, border_radius=8)
+                rendered = self.fonts["small"].render(item["text"], True, self.colors["text"])
+                self.canvas.blit(rendered, rendered.get_rect(midleft=(box.left + 12, box.centery)))
+            if self.transition_alpha > 0:
+                overlay = pygame.Surface(self.canvas.get_size(), pygame.SRCALPHA)
+                overlay.fill((0, 0, 0, self.transition_alpha))
+                self.canvas.blit(overlay, (0, 0))
+                self.transition_alpha = max(0, self.transition_alpha - 18)
             pygame.transform.smoothscale(self.canvas, self.screen.get_size(), self.screen)
             pygame.display.flip()
             self.clock.tick(self.config["window"]["fps"])
