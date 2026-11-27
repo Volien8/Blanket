@@ -1,6 +1,52 @@
 import pygame
 
 
+_BACKGROUND_CACHE = {}
+_GRADIENT_CACHE = {}
+
+
+def _blend(first, second, ratio):
+    return tuple(int(start + (end - start) * ratio) for start, end in zip(first, second))
+
+
+def gradient_background(surface, colors):
+    size = surface.get_size()
+    key = (size, colors["bg"], colors["accent"], colors["purple"])
+    background = _BACKGROUND_CACHE.get(key)
+    if background is None:
+        width, height = size
+        background = pygame.Surface(size)
+        top = _blend(colors["bg"], colors["accent"], 0.12)
+        bottom = _blend(colors["bg"], colors["purple"], 0.12)
+        for y in range(height):
+            pygame.draw.line(background, _blend(top, bottom, y / max(1, height - 1)), (0, y), (width, y))
+        glow = pygame.Surface(size, pygame.SRCALPHA)
+        pygame.draw.circle(glow, (*colors["accent"], 22), (width, 0), int(height * 0.8))
+        pygame.draw.circle(glow, (*colors["purple"], 22), (0, height), int(height * 0.75))
+        background.blit(glow, (0, 0))
+        _BACKGROUND_CACHE[key] = background
+    surface.blit(background, (0, 0))
+
+
+def _gradient_surface(size, top, bottom, radius):
+    key = (size, top, bottom, radius)
+    gradient = _GRADIENT_CACHE.get(key)
+    if gradient is None:
+        width, height = size
+        gradient = pygame.Surface(size, pygame.SRCALPHA)
+        for y in range(height):
+            pygame.draw.line(gradient, _blend(top, bottom, y / max(1, height - 1)), (0, y), (width, y))
+        mask = pygame.Surface(size, pygame.SRCALPHA)
+        pygame.draw.rect(mask, (255, 255, 255, 255), mask.get_rect(), border_radius=radius)
+        gradient.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+        _GRADIENT_CACHE[key] = gradient
+    return gradient
+
+
+def _shade(color, amount):
+    return tuple(max(0, min(255, int(channel * amount))) for channel in color)
+
+
 def wrap_text(value, font, max_width):
     words = str(value).split()
     lines, current = [], ""
@@ -26,6 +72,7 @@ class Button:
         self.tooltip = tooltip
         self.enabled = enabled
         self.hover = False
+        self.selected = False
 
     def handle(self, event):
         if event.type == pygame.MOUSEMOTION:
@@ -36,9 +83,13 @@ class Button:
     def draw(self, surface, font, colors):
         if not self.enabled:
             fill = (62, 69, 88)
+        elif self.selected:
+            fill = colors["green"]
         else:
             fill = colors["accent"] if self.hover else self.accent
-        pygame.draw.rect(surface, fill, self.rect, border_radius=8)
+        top = _blend(fill, (255, 255, 255), 0.17) if self.enabled else fill
+        bottom = _shade(fill, 0.76) if self.enabled else fill
+        surface.blit(_gradient_surface(self.rect.size, top, bottom, 8), self.rect.topleft)
         pygame.draw.rect(surface, colors["border"], self.rect, 2, border_radius=8)
         lines = wrap_text(self.text, font, self.rect.width - 18)
         line_height = font.get_linesize()
@@ -65,7 +116,10 @@ def text(surface, value, position, font, color, center=False, max_width=None, li
 
 
 def panel(surface, rect, colors, fill=None):
-    pygame.draw.rect(surface, fill or colors["panel"], rect, border_radius=12)
+    fill = fill or colors["panel"]
+    top = _blend(fill, (255, 255, 255), 0.08)
+    bottom = _shade(fill, 0.82)
+    surface.blit(_gradient_surface(rect.size, top, bottom, 12), rect.topleft)
     pygame.draw.rect(surface, colors["border"], rect, 2, border_radius=12)
 
 

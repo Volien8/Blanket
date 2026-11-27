@@ -4,7 +4,7 @@ import pygame
 
 from ..people import draw_portrait
 from ..scene import Scene
-from ..ui import Button, panel, text, wrap_text
+from ..ui import Button, gradient_background, panel, text, wrap_text
 
 
 class DialogScene(Scene):
@@ -15,8 +15,8 @@ class DialogScene(Scene):
         with data_path.open(encoding="utf-8") as source:
             self.dialogs = json.load(source)
         self.dialog = self.dialogs[key]
+        self.dialog = dict(self.dialog)
         if key == "ceo":
-            self.dialog = dict(self.dialog)
             self.dialog["text"] = (
                 "Главное — разработать 10% софта и уже заявлять о нём как о готовом продукте. "
                 "Потом как-нибудь выкрутимся — лишь бы купили."
@@ -56,6 +56,8 @@ class DialogScene(Scene):
         if action == "cancel":
             self.back()
             return
+        for dialog_option, button in zip(self.dialog["options"], self.buttons):
+            button.selected = dialog_option is option
         effects = {
             "give_resource": lambda: (setattr(state, "energy", max(0, state.energy - 1)), setattr(state.teams[0], "readiness", min(100, state.teams[0].readiness + 15)), setattr(state, "karma", min(100, state.karma + 3)), "Ресурс отдан BE. FE уже смотрит неодобрительно."),
             "deny_resource": lambda: (setattr(state, "stress", state.stress + 5), setattr(state.teams[0], "suspicion", min(100, state.teams[0].suspicion + 10)), "BE получил отказ и записал это в блокнот."),
@@ -124,8 +126,8 @@ class DialogScene(Scene):
 
     def draw(self, surface):
         colors, fonts = self.game.colors, self.game.fonts
-        surface.fill(colors["bg"])
-        panel(surface, pygame.Rect(55, 55, 1170, 500), colors, (30, 39, 68))
+        gradient_background(surface, colors)
+        panel(surface, pygame.Rect(55, 55, 1170, 500), colors, (33, 47, 78))
         draw_portrait(surface, (215, 340), 1.65, self.dialog["portrait"].lower(), colors, "neutral")
         text(surface, self.dialog["speaker"], (215, 490), fonts["heading"], colors["text"], True)
         current_text = (self.message or self.dialog["text"])[:self.visible_chars]

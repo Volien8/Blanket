@@ -33,6 +33,7 @@ class Game:
             "heading": pygame.font.SysFont("arial", 28, bold=True),
             "body": pygame.font.SysFont("arial", 20),
             "small": pygame.font.SysFont("arial", 16),
+            "metric": pygame.font.SysFont("arial", 18, bold=True),
         }
         self.colors = {
             "bg": (17, 22, 38), "panel": (34, 42, 68), "panel_light": (49, 61, 96),
@@ -41,6 +42,9 @@ class Game:
             "purple": (219, 123, 255), "border": (102, 126, 178), "pink": (255, 103, 191)
         }
         self.state = GameState.new(self.config["game"])
+        self.tracked_metrics = self._metric_values()
+        self.metric_changed_at = {}
+        self.pending_metric_flashes = set()
         self.scene = MenuScene(self)
         self.back_button = Button((18, 12, 112, 32), "← Назад", self.back_to_previous, accent=(47, 82, 130), tooltip="Вернуться на предыдущий экран.")
         self.running = True
@@ -51,6 +55,22 @@ class Game:
 
     def new_state(self):
         self.state = GameState.new(self.config["game"])
+
+    def _metric_values(self):
+        return {
+            "energy": self.state.energy,
+            "papers": self.state.papers,
+            "budget": self.state.budget,
+            "karma": self.state.karma,
+            "stress": self.state.stress,
+        }
+
+    def update_metric_changes(self):
+        values = self._metric_values()
+        for name, value in values.items():
+            if value != self.tracked_metrics[name]:
+                self.pending_metric_flashes.add(name)
+        self.tracked_metrics = values
 
     def back_to_previous(self):
         if hasattr(self.scene, "back"):
@@ -137,6 +157,7 @@ class Game:
                         event = pygame.event.Event(event.type, {**event.dict, "pos": (int(event.pos[0] * scale_x), int(event.pos[1] * scale_y))})
                     if not consumed:
                         self.scene.handle_event(event)
+            self.update_metric_changes()
             self.scene.update()
             self.scene.draw(self.canvas)
             if not isinstance(self.scene, MenuScene):

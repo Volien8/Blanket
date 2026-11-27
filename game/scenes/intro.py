@@ -3,7 +3,7 @@ import pygame
 from ..branding import AUTHOR_SIGNATURE, GAME_TITLE
 from ..people import draw_portrait
 from ..scene import Scene
-from ..ui import Button, panel, text
+from ..ui import Button, gradient_background, panel, text
 
 
 class IntroScene(Scene):
@@ -30,7 +30,7 @@ class IntroScene(Scene):
 
     def draw(self, surface):
         colors, fonts = self.game.colors, self.game.fonts
-        surface.fill(colors["bg"])
+        gradient_background(surface, colors)
         text(surface, GAME_TITLE, (640, 62), fonts["title"], colors["accent"], True)
         text(surface, "ПРЕАМБУЛА", (640, 115), fonts["heading"], colors["pink"], True)
         panel(surface, pygame.Rect(80, 155, 1120, 380), colors, (29, 38, 65))

@@ -1,7 +1,7 @@
 import pygame
 
 from ..scene import Scene
-from ..ui import Button, text
+from ..ui import Button, gradient_background, text
 
 
 class EndScene(Scene):
@@ -26,7 +26,7 @@ class EndScene(Scene):
 
     def draw(self, surface):
         colors, fonts = self.game.colors, self.game.fonts
-        surface.fill(colors["bg"])
+        gradient_background(surface, colors)
         color = colors["green"] if self.title == "ПОБЕДА" else colors["yellow"] if self.title == "СЕРЫЙ ИСХОД" else colors["red"]
         text(surface, self.title, (640, 220), fonts["title"], color, True)
         text(surface, self.reason, (640, 315), fonts["heading"], colors["text"], True)

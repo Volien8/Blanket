@@ -1,7 +1,7 @@
 import pygame
 
 from ..scene import Scene
-from ..ui import Button, bar, panel, text
+from ..ui import Button, bar, gradient_background, panel, text
 
 
 class ReleaseScene(Scene):
@@ -48,7 +48,7 @@ class ReleaseScene(Scene):
 
     def draw(self, surface):
         colors, fonts, state = self.game.colors, self.game.fonts, self.game.state
-        surface.fill(colors["bg"])
+        gradient_background(surface, colors)
         text(surface, "ЭКРАН РЕЛИЗА", (640, 60), fonts["title"], colors["green"], True)
         text(surface, "Только РП решает, когда ракета взлетает.", (640, 110), fonts["body"], colors["muted"], True)
         for index, team in enumerate(state.teams[:5]):

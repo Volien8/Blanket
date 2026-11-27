@@ -5,4 +5,6 @@ save/*.json
 .idea/
 build/
 dist/
+*.docx
+!ОДЕЯЛО_ТЗ_v2.0.docx
 *.egg-info/

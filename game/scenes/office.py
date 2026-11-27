@@ -2,7 +2,7 @@ import pygame
 
 from ..people import draw_avatar, draw_person
 from ..scene import Scene
-from ..ui import Button, bar, panel, text, tooltip
+from ..ui import Button, bar, gradient_background, panel, text, tooltip
 
 
 class OfficeScene(Scene):
@@ -112,15 +112,43 @@ class OfficeScene(Scene):
 
     def draw(self, surface):
         colors, fonts, state = self.game.colors, self.game.fonts, self.game.state
-        surface.fill(colors["bg"])
+        gradient_background(surface, colors)
         panel(surface, pygame.Rect(0, 0, 1280, 90), colors)
         max_rounds = self.game.config["game"]["max_rounds"]
         text(surface, f"ДЕНЬ {state.round}/{max_rounds}", (180, 15), fonts["heading"], colors["text"])
-        metrics = [("Энергия", state.energy, colors["yellow"]), ("Бумажки", state.papers, colors["yellow"]),
-                   ("Бюджет", state.budget, colors["green"]), ("Карма CEO", state.karma, colors["purple"]),
-                   ("Стресс", state.stress, colors["red"])]
-        for i, (name, value, color) in enumerate(metrics):
-            text(surface, f"{name}: {value}", (180 + i * 150, 57), fonts["small"], color)
+        metrics = [
+            ("Энергия", "energy", state.energy, colors["yellow"]),
+            ("Бумажки", "papers", state.papers, colors["yellow"]),
+            ("Бюджет", "budget", state.budget, colors["green"]),
+            ("Карма CEO", "karma", state.karma, colors["purple"]),
+            ("Стресс", "stress", state.stress, colors["red"]),
+        ]
+        now = pygame.time.get_ticks()
+        for key in self.game.pending_metric_flashes:
+            self.game.metric_changed_at[key] = now
+        self.game.pending_metric_flashes.clear()
+        for index, (name, key, value, color) in enumerate(metrics):
+            x = 180 + index * 150
+            label = f"{name}: "
+            text(surface, label, (x, 57), fonts["small"], color)
+            value_x = x + fonts["small"].size(label)[0]
+            changed_at = self.game.metric_changed_at.get(key)
+            elapsed = now - changed_at if changed_at is not None else 2000
+            if elapsed < 1500:
+                pulse = (now // 140) % 2 == 0
+                if pulse:
+                    value_color = tuple(min(255, channel + 100) for channel in color)
+                    value_font = self.game.fonts["metric"]
+                    value_surface = value_font.render(str(value), True, value_color)
+                    glow = pygame.Surface((value_surface.get_width() + 12, value_surface.get_height() + 4), pygame.SRCALPHA)
+                    glow_color = (*color, 90)
+                    pygame.draw.rect(glow, glow_color, glow.get_rect(), border_radius=5)
+                    surface.blit(glow, (value_x - 5, 55))
+                    surface.blit(value_surface, (value_x, 55))
+                else:
+                    text(surface, str(value), (value_x, 57), fonts["small"], color)
+            else:
+                text(surface, str(value), (value_x, 57), fonts["small"], color)
         text(surface, "ОФИС / проект «Одеяло»", (1060, 25), fonts["small"], colors["muted"], True)
         for index, (name, rect, key, role, hint) in enumerate(self.ZONES):
             box = pygame.Rect(rect)
@@ -142,8 +170,6 @@ class OfficeScene(Scene):
             if key == "legacy":
                 legacy = state.legacy
                 text(surface, f"{legacy.status} / каскад {legacy.cascade}", (box.centerx, box.bottom - 18), fonts["small"], colors["red"], True, max_width=box.width - 20)
-            elif key == "customer":
-                text(surface, "4 заказчика", (box.centerx, box.bottom - 18), fonts["small"], colors["muted"], True)
         for button in self.buttons:
             button.draw(surface, fonts["small"], colors)
         active_button = next((button for button in self.buttons if button.hover and button.tooltip), None)

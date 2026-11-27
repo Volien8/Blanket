@@ -2,7 +2,7 @@ import random
 import pygame
 
 from ..scene import Scene
-from ..ui import Button, panel, text
+from ..ui import Button, gradient_background, panel, text
 
 
 class SyncScene(Scene):
@@ -42,7 +42,7 @@ class SyncScene(Scene):
 
     def draw(self, surface):
         colors, fonts = self.game.colors, self.game.fonts
-        surface.fill(colors["bg"])
+        gradient_background(surface, colors)
         text(surface, "СИНХРОНИЗАЦИЯ И ЛОЖЬ", (640, 70), fonts["title"], colors["accent"], True)
         text(surface, "Один вопрос. Три ответа. И ни одного общего календаря.", (640, 120), fonts["body"], colors["muted"], True)
         for index, (team, value, _) in enumerate(self.answers):

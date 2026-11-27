@@ -1,5 +1,4 @@
 from pathlib import Path
-import math
 
 import pygame
 
@@ -115,7 +114,6 @@ def draw_person(surface, center, scale, role, colors, selected=False):
 def draw_portrait(surface, center, scale, role, colors, expression="neutral"):
     """Крупный портрет лица для диалогового экрана."""
     x, y = center
-    y += int(math.sin(pygame.time.get_ticks() / 650) * 2)
     avatar_rect = pygame.Rect(int(x - 105 * scale), int(y - 135 * scale), int(210 * scale), int(265 * scale))
     if draw_avatar(surface, avatar_rect, role, colors, True):
         return

@@ -1,7 +1,7 @@
 import pygame
 
 from ..scene import Scene
-from ..ui import Button, bar, panel, text
+from ..ui import Button, bar, gradient_background, panel, text
 
 
 class LegacyScene(Scene):
@@ -19,7 +19,12 @@ class LegacyScene(Scene):
         if "legacy" not in self.game.state.talked_to_today:
             self.game.state.talked_to_today.append("legacy")
 
+    def select_action(self, selected_button):
+        for index, button in enumerate(self.buttons):
+            button.selected = index == selected_button
+
     def analyze(self):
+        self.select_action(0)
         state = self.game.state
         if state.energy <= 0:
             self.message = "Энергии нет. Даже легаси это заметило."
@@ -31,6 +36,7 @@ class LegacyScene(Scene):
         state.add_log(self.message)
 
     def replace(self):
+        self.select_action(1)
         state = self.game.state
         legacy = state.legacy
         if legacy.status == "works":
@@ -53,6 +59,7 @@ class LegacyScene(Scene):
         state.add_log(self.message)
 
     def stabilize(self):
+        self.select_action(2)
         state = self.game.state
         if state.budget < 10:
             self.message = "Бюджета не хватает даже на скотч."
@@ -77,9 +84,9 @@ class LegacyScene(Scene):
 
     def draw(self, surface):
         colors, fonts, legacy = self.game.colors, self.game.fonts, self.game.state.legacy
-        surface.fill((35, 24, 32))
+        gradient_background(surface, colors)
         text(surface, "ЛЕГАСИ-МОНОЛИТ", (640, 75), fonts["title"], colors["red"], True)
-        panel(surface, pygame.Rect(260, 140, 760, 300), colors, (47, 34, 49))
+        panel(surface, pygame.Rect(260, 140, 760, 300), colors, (58, 34, 70))
         text(surface, f"статус: {legacy.status}", (640, 190), fonts["heading"], colors["text"], True)
         text(surface, f"непрозрачность: {legacy.opacity}", (640, 235), fonts["body"], colors["muted"], True)
         text(surface, f"каскад ошибок: {legacy.cascade}", (640, 280), fonts["heading"], colors["red"], True)

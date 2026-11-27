@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ..branding import AUTHOR_NAME, AUTHOR_SIGNATURE, GAME_TITLE
 from ..scene import Scene
-from ..ui import Button, panel, text, tooltip
+from ..ui import Button, gradient_background, panel, text, tooltip
 
 
 class MenuScene(Scene):
@@ -64,9 +64,7 @@ class MenuScene(Scene):
 
     def draw(self, surface):
         colors, fonts = self.game.colors, self.game.fonts
-        surface.fill(colors["bg"])
-        pygame.draw.circle(surface, (32, 79, 128), (1100, 95), 220)
-        pygame.draw.circle(surface, (102, 43, 126), (100, 650), 190)
+        gradient_background(surface, colors)
         text(surface, GAME_TITLE, (640, 78), fonts["title"], colors["accent"], True)
         text(surface, "Офисный квест о дедлайнах, командах и одном убежавшем одеяле",
              (640, 145), fonts["body"], colors["muted"], True, max_width=620)

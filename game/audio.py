@@ -21,6 +21,8 @@ class AudioManager:
         try:
             if not pygame.mixer.get_init():
                 pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=512)
+            pygame.mixer.set_reserved(1)
+            self.voice_channel = pygame.mixer.Channel(0)
             self.enabled = True
             self._build_sounds()
         except pygame.error:
@@ -80,7 +82,7 @@ class AudioManager:
             base = 230 + (sum(ord(char) for char in message) % 100)
             sound = self._sound([base, base + 35, base + 70, base + 35], 0.075, 0.22, 0.9)
         self._set_volume(sound, self.master_volume * self.voice_volume)
-        sound.play()
+        self.voice_channel.play(sound)
 
     def repeat_voice(self):
         if self.last_voice:
